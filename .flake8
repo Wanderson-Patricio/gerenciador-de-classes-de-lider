@@ -1,5 +1,12 @@
-[flake8] 
-max-line-length = 88 
-ignore = E203, W503 
+[flake8]
+max-line-length = 88
+# E203 e W503 são ignorados para compatibilidade com o Black
+ignore = E203, W503
 exclude = .git, __pycache__, build, dist, *env*
 per-file-ignores = __init__.py:F401
+
+# --- Novas configurações recomendadas ---
+# Garante que a indentação seja consistente
+indent-size = 4
+# Limita a complexidade ciclomática (opcional, mas bom para manter funções limpas)
+max-complexity = 10

@@ -4,9 +4,19 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-token = os.getenv("GITHUB_API_TOKEN")
 
-with GithubManager(token, requested_by_api=True) as git:
-    files = git.list_files('gerenciador-de-classes-de-lider')
-    file = files[1]
-    print(file.path, file.sha)
+try:
+    with GithubManager() as git:
+        try:
+            git.upload_file(
+                repo_name="gerenciador-de-classes-de-lider",
+                path="README.md",
+                content="# Gerenciador de Classes de Líder\nEste repositório contém o código"
+            )
+        except Exception as e:
+            print(f"Erro: {type(e)}")
+            print(f"Erro: {e}")
+
+except Exception as e:
+    print(f"Erro ao conectar ao GitHub: {type(e)}")
+    print(f"Erro ao conectar ao GitHub: {e}")    
