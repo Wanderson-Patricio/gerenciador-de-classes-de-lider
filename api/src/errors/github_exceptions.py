@@ -22,7 +22,7 @@ class TokenMissingError(GithubException):
     """Exception raised when a required token is missing."""
 
     def __init__(self, message="A required token is missing."):
-        super().__init__(message, 400)
+        super().__init__(message, 401)
 
 class BadCredentialsError(GithubException):
     """Exception raised for bad credentials."""

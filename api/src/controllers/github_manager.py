@@ -1,4 +1,4 @@
-from typing import Optional, Type, List
+from typing import Dict, Optional, Type, List
 from types import TracebackType
 
 from github import Github
@@ -20,6 +20,12 @@ class GithubManager:
         self._token = self._get_token(token, requested_by_api)
         self._auth: Token = Token(self._token)
         self._git: Github = Github(auth=self._auth)
+
+        
+        try:
+            self.get_user().login
+        except Exception as e:
+            raise TokenMissingError("Invalid GitHub API token provided.") from e
 
 
     def _get_token(self, 
@@ -83,6 +89,42 @@ class GithubManager:
         except:
             raise NotFoundError(resource_type="Repository", resource_identifier=repo_name)
     
+
+    def create_repo( self, 
+                    name: str, 
+                    description: Optional[str] = None, 
+                    private: bool = False, 
+                    auto_init: bool = True, 
+                    gitignore_template: Optional[str] = "Python", 
+                    license_template: Optional[str] = "mit" 
+                ) -> Repository: 
+        
+        """ Cria um novo repositório no GitHub para o usuário autenticado. 
+        :param name: Nome do repositório 
+        :param description: Descrição do repositório 
+        :param private: Define se o repositório será privado (True) ou público (False) 
+        :param auto_init: Se True, cria o repositório já com um README.md 
+        :param gitignore_template: Template de .gitignore (ex: "Python") 
+        :param license_template: Template de licença (ex: "mit") 
+        :return: Objeto Repository criado """ 
+        user = self.get_user() 
+        repo = user.create_repo(name=name, 
+                                description=description, 
+                                private=private, 
+                                auto_init=auto_init, 
+                                gitignore_template=gitignore_template, 
+                                license_template=license_template) 
+        return repo
+    
+    
+    def delete_repo(self, repo_name: str) -> Dict:
+        """ Deleta um repositório do GitHub do usuário autenticado. 
+        :param repo_name: Nome do repositório a ser deletado 
+        """ 
+        repo = self.get_repo_by_name(repo_name) 
+        repo.delete()
+        return {"message": f"Repository '{repo_name}' deleted successfully."}
+
 
     def _file_exists(self, 
                             repo_name: str, 
@@ -218,36 +260,4 @@ class GithubManager:
         return all_files
 
     
-    def create_repo( self, 
-                    name: str, 
-                    description: Optional[str] = None, 
-                    private: bool = False, 
-                    auto_init: bool = True, 
-                    gitignore_template: Optional[str] = "Python", 
-                    license_template: Optional[str] = "mit" 
-                ) -> Repository: 
-        
-        """ Cria um novo repositório no GitHub para o usuário autenticado. 
-        :param name: Nome do repositório 
-        :param description: Descrição do repositório 
-        :param private: Define se o repositório será privado (True) ou público (False) 
-        :param auto_init: Se True, cria o repositório já com um README.md 
-        :param gitignore_template: Template de .gitignore (ex: "Python") 
-        :param license_template: Template de licença (ex: "mit") 
-        :return: Objeto Repository criado """ 
-        user = self.get_user() 
-        repo = user.create_repo(name=name, 
-                                description=description, 
-                                private=private, 
-                                auto_init=auto_init, 
-                                gitignore_template=gitignore_template, 
-                                license_template=license_template) 
-        return repo
     
-    
-    def delete_repo(self, repo_name: str) -> None:
-        """ Deleta um repositório do GitHub do usuário autenticado. 
-        :param repo_name: Nome do repositório a ser deletado 
-        """ 
-        repo = self.get_repo_by_name(repo_name) 
-        repo.delete()

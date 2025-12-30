@@ -1,25 +1,15 @@
-from api.src.controllers.github_manager import GithubManager
-
 from dotenv import load_dotenv
+import requests
+import os
 
 load_dotenv()
 
-try:
-    with GithubManager() as git:
-        try:
-            repos = git.get_repos()
-            repo = repos[0]
-            from pprint import pprint
-            pprint(repo.name)
-            pprint(repo.description)
-            pprint(repo.html_url)
-            pprint(repo.id)
-        except Exception as e:
-            print(f"Erro: {type(e)}")
-            print(f"Erro: {e}")
+data = requests.delete(
+    'http://localhost:3000/api/repositories/teste-de-repositorio-2',
+    headers={
+        'x-api-token': os.getenv('GITHUB_API_TOKEN')
+    }
+)
 
-except Exception as e:
-    print(f"Erro ao conectar ao GitHub: {type(e)}")
-    print(f"Erro ao conectar ao GitHub: {e}")    
-
-
+print(data.status_code)
+print(data.json())

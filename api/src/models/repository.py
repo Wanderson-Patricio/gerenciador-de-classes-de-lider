@@ -18,17 +18,3 @@ class RepositoryData:
             repo.description,
             repo.html_url
         )
-
-@dataclass(frozen=True)
-class RepositoryCreate:
-    pass
-
-
-@dataclass(frozen=True)
-class RepositoryUpdate:
-    pass
-
-
-@dataclass(frozen=True)
-class RepositoryDelete:
-    pass
