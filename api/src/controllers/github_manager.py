@@ -8,11 +8,10 @@ from github.PaginatedList import PaginatedList
 from github.Repository import Repository
 from github.ContentFile import ContentFile
 
-from ..errors import TokenMissingError, BadCredentialsError, NotFoundError, AlreadyExistsError
+from ..errors import TokenMissingError, NotFoundError, AlreadyExistsError
 
 class GithubManager:
 
-    
     def __init__(self, 
                  token: Optional[str] = None, 
                  requested_by_api: bool = False
@@ -21,6 +20,7 @@ class GithubManager:
         self._token = self._get_token(token, requested_by_api)
         self._auth: Token = Token(self._token)
         self._git: Github = Github(auth=self._auth)
+
 
     def _get_token(self, 
                    token: Optional[str] = None, 
@@ -45,9 +45,11 @@ class GithubManager:
         
         raise TokenMissingError("GitHub API token must be provided either as an argument or via the GITHUB_API_TOKEN environment variable.")
     
+
     def __enter__(self) -> 'GithubManager':
         return self
     
+
     def __exit__(
         self, 
         exc_type: Optional[Type[BaseException]], 
@@ -81,6 +83,27 @@ class GithubManager:
         except:
             raise NotFoundError(resource_type="Repository", resource_identifier=repo_name)
     
+
+    def _file_exists(self, 
+                            repo_name: str, 
+                            path: str, 
+                            ref: Optional[str] = "main") -> bool:
+        try:
+            self.get_file(repo_name, path, ref=ref)
+            return True
+        except NotFoundError:
+            return False
+        
+    def _branch_exists(self,
+                        repo_name: str,
+                        branch: str) -> bool:
+        
+        repo = self.get_repo_by_name(repo_name)
+        try:
+            repo.get_branch(branch)
+            return True
+        except:
+            return False
     
     def upload_file(self,
                     repo_name: str, 
@@ -92,22 +115,21 @@ class GithubManager:
         
         repo = self.get_repo_by_name(repo_name)
 
-        
-        try:
-            self.get_file(repo_name, path, ref=branch)
+        if self._file_exists(repo_name, path, ref=branch):
             raise AlreadyExistsError(resource_type="File", resource_identifier=path)
-        except NotFoundError:
-            repo.create_file(
-                path=path,
-                content=content,
-                message=message,
-                branch=branch
-            )
-            return self.get_file(repo_name, path, ref=branch)
+        
+        if not self._branch_exists(repo_name, branch):
+            raise NotFoundError(resource_type="Branch", resource_identifier=branch)
 
-    ###############################################
-    #TODO: Continuar aqui com o tratamento de erros
-    ###############################################
+        repo.create_file(
+            path=path,
+            content=content,
+            message=message,
+            branch=branch
+        )
+        return self.get_file(repo_name, path, ref=branch)
+
+
     def update_file_content(self, 
                     repo_name: str,
                     path: str,
@@ -118,6 +140,13 @@ class GithubManager:
                 ) -> None:
 
         repo = self.get_repo_by_name(repo_name)
+
+        if not self._file_exists(repo_name, path, ref=branch):
+            raise NotFoundError(resource_type="File", resource_identifier=path)
+        
+        if not self._branch_exists(repo_name, branch):
+            raise NotFoundError(resource_type="Branch", resource_identifier=branch)
+
         repo.update_file(
             path=path,
             content=new_content,
@@ -137,6 +166,13 @@ class GithubManager:
                 ) -> None:
         
         repo = self.get_repo_by_name(repo_name)
+
+        if not self._file_exists(repo_name, path, ref=branch):
+            raise NotFoundError(resource_type="File", resource_identifier=path)
+        
+        if not self._branch_exists(repo_name, branch):
+            raise NotFoundError(resource_type="Branch", resource_identifier=branch)
+
         repo.delete_file(
             path=path, 
             message=message, 
@@ -151,8 +187,11 @@ class GithubManager:
                  ref: Optional[str] = "main"
             ) -> ContentFile:
         
-        repo = self.get_repo_by_name(repo_name)
-        return repo.get_contents(path=path, ref=ref)
+        try:
+            repo = self.get_repo_by_name(repo_name)
+            return repo.get_contents(path=path, ref=ref)
+        except:
+            raise NotFoundError(resource_type="File", resource_identifier=path)
     
     
     def list_files(self, 
@@ -197,12 +236,12 @@ class GithubManager:
         :param license_template: Template de licença (ex: "mit") 
         :return: Objeto Repository criado """ 
         user = self.get_user() 
-        repo = user.create_repo( name=name, 
+        repo = user.create_repo(name=name, 
                                 description=description, 
                                 private=private, 
                                 auto_init=auto_init, 
                                 gitignore_template=gitignore_template, 
-                                license_template=license_template ) 
+                                license_template=license_template) 
         return repo
     
     
@@ -210,6 +249,5 @@ class GithubManager:
         """ Deleta um repositório do GitHub do usuário autenticado. 
         :param repo_name: Nome do repositório a ser deletado 
         """ 
-        user = self.get_user() 
-        repo = user.get_repo(repo_name) 
+        repo = self.get_repo_by_name(repo_name) 
         repo.delete()
