@@ -15,13 +15,18 @@ class ContentFileData:
     type: str
 
     def from_content_file(file: ContentFile):
+        try:
+            content = file.decoded_content.decode('utf-8')
+        except:
+            content = ""
+
         return ContentFileData(
             file.path,
             file.name,
             file.html_url,
             file.sha,
             file.download_url,
-            file.decoded_content,
+            content,
             file.repository.name,
             file.language,
             file.type

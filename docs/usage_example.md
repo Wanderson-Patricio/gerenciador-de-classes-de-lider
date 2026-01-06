@@ -48,6 +48,7 @@ A estrutura de rotas foi projetada de forma semântica, utilizando o repositóri
 | `/repositories` | $\color{green}{\text{GET}}$ | Lista todos os repositórios. |
 | `/repositories` | $\color{yellow}{\text{POST}}$ | Cria um novo repositório. |
 | `/repositories/{repo_name}` | $\color{green}{\text{GET}}$ | Retorna detalhes de um repositório específico. |
+| `/repositories/{repo_name}` | $\color{magenta}{\text{PATCH}}$ | Atualiza a descrição do repositório. |
 | `/repositories/{repo_name}` | $\color{red}{\text{DELETE}}$ | Deleta um repositório específico. |
 | `/repositories/{repo_name}/files` | $\color{green}{\text{GET}}$ | Lista todos os arquivos em um repositório específico. |
 | `/repositories/{repo_name}/files` | $\color{yellow}{\text{POST}}$ | Cria um novo arquivo dentro de um repositório específico. |
@@ -134,7 +135,7 @@ HEADERS = {
     }
     ```
     
-    3. `POST` /repositories/{repo_name}
+    3. `POST` /repositories
 
     ```python
     data = requests.post(
@@ -164,8 +165,34 @@ HEADERS = {
         "name": string
     }
     ```
+
+    4. `PATCH` /repositories/{repo_name}
+
+    ```python
+    data = requests.patch(
+        f'{API_URL}/repositories/teste-de-repositorio',
+        headers=HEADERS,
+        json={
+            'description': 'Updated description'
+        }
+    )
+
+    print(data.status_code)
+    print(data.json())
+    ``` 
+
+    Retorno Esperado
+
+    ```js
+    {
+        "description": string,
+        "html_url": string,
+        "id": int,
+        "name": string
+    }
+    ```
     
-    4. `DELETE` /repositories/{repo_name}
+    5. `DELETE` /repositories/{repo_name}
 
     ```python
     data = requests.delete(

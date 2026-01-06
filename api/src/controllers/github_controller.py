@@ -1,6 +1,5 @@
 from typing import Dict, Optional, Type, List, Union, IO
 from types import TracebackType
-import base64
 
 from github import Github
 from github.Auth import Token
@@ -91,9 +90,16 @@ class GithubController:
             raise NotFoundError(resource_type="Repository", resource_identifier=repo_name)
     
 
-    def create_repo( self, 
+    def sanitize_description(self, text: str) -> str:
+        import re
+        if not text:
+            return ""
+        # Remove qualquer caractere das categorias de controle do Unicode
+        return re.sub(r'[\x00-\x1f\x7f-\x9f]', '', text)
+
+    def create_repo(self, 
                     name: str, 
-                    description: Optional[str] = None, 
+                    description: Optional[str] = "Created via API", 
                     private: bool = False, 
                     auto_init: bool = True, 
                     gitignore_template: Optional[str] = "Python", 
@@ -110,13 +116,22 @@ class GithubController:
         :return: Objeto Repository criado """ 
         user = self.get_user() 
         repo = user.create_repo(name=name, 
-                                description=description, 
+                                description=self.sanitize_description(description), 
                                 private=private, 
                                 auto_init=auto_init, 
                                 gitignore_template=gitignore_template, 
                                 license_template=license_template) 
+        
         return repo
     
+    def update_repo_description(self, 
+                                repo_name: str, 
+                                new_description: str
+                            ) -> Repository:
+        
+        repo = self.get_repo_by_name(repo_name)
+        repo.edit(description=self.sanitize_description(new_description))
+        return repo
     
     def delete_repo(self, repo_name: str) -> Dict:
         """ Deleta um repositório do GitHub do usuário autenticado. 
@@ -248,10 +263,8 @@ class GithubController:
                             path: str,
                             new_content: Union[str, bytes, bytearray, IO[bytes]],
                             message: Optional[str] = "Update file via script",
-                            branch: Optional[str] = "main",
-                            author: Optional[dict] = None,      # opcional: {"name": "...", "email": "..."}
-                            committer: Optional[dict] = None,   # opcional: {"name": "...", "email": "..."}
-                        ):
+                            branch: Optional[str] = "main"
+                        ) -> ContentFile:
         """
         Atualiza o conteúdo de um arquivo em qualquer formato no repositório.
         - new_content pode ser:
@@ -294,9 +307,7 @@ class GithubController:
             message=message,
             content=raw_bytes,
             sha=sha,
-            branch=branch,
-            committer=committer,
-            author=author
+            branch=branch
         )
 
         # Retorna o arquivo atualizado (mantendo seu padrão)

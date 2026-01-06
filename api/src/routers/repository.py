@@ -53,7 +53,7 @@ def create_repo():
     if not name:
         raise BadRequestError("Campo 'name' é obrigatório")
 
-    description = data.get("description", None)
+    description = data.get("description", "Repository created via API")
     private = data.get("private", False)
     auto_init = data.get("auto_init", True)
     gitignore_template = data.get("gitignore_template", "Python")
@@ -69,6 +69,20 @@ def create_repo():
             license_template=license_template
         )
         return jsonify(RepositoryData.from_repository(repo)), 201
+
+
+@repos_bp.route('/<string:repo_name>', methods=['PATCH'])
+@token_required
+def update_repo_description(repo_name: str):
+    data = request.get_json(silent=True) or {}
+    new_description = data.get("description")
+
+    if not new_description:
+        raise BadRequestError("Campo 'description' é obrigatório")
+
+    with GithubController(g.token, True) as git:
+        repo = git.update_repo_description(repo_name, new_description)
+        return jsonify(RepositoryData.from_repository(repo)), 200
 
 
 @repos_bp.route('/<string:repo_name>', methods=['DELETE'])

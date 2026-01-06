@@ -6,43 +6,34 @@ import os
 load_dotenv()
 
 
-API_URL = "http://localhost:3000/api/repositories/teste-de-repositorio/files"
-TOKEN = os.getenv("GITHUB_API_TOKEN", "")
+API_URL = "http://localhost:3000/api"
+HEADERS = {
+    'x-api-token': os.getenv("GITHUB_API_TOKEN", "")
 
-# Se precisar escolher outra branch, passe via query string: ?branch=develop
+}
+
 params = {
     "branch": "main"
 }
 
-
-filename = "Análise de Dados com Python Utilizando o CHATGPT como assistente.pdf"
-path_in_repo = f"{filename}"
-
-headers = {
-    "x-api-token": TOKEN
-}
-
+filename = "README.md"
+path_in_repo = f"pasta/arquivos/{filename}"
 
 
 with open(filename, "rb") as f:
     files = {
-        # campo "file" deve bater com o que sua rota Flask espera: request.files.get('file')
         "file": (filename, f, "application/octet-stream")
     }
     data = {
-        "path": path_in_repo,
-        "message": f"Add {filename} via script"
+        "message": f"Updated {filename} via script"             # Opcional
     }
 
-    resp = requests.post(API_URL, params=params, headers=headers, files=files, data=data)
+    api_url_post = f'{API_URL}/repositories/Classe-de-Lider-de-Aventureiros/files/{path_in_repo}'
+    res = requests.put(api_url_post, params=params, headers=HEADERS, files=files, data=data)
 
 
-
-
-print(resp.status_code)
-from pprint import pprint
+print(res.status_code)
 try:
-    pprint(resp.json())
+    print(res.json())
 except Exception:
-    print(resp.text)
-
+    print(res.text)

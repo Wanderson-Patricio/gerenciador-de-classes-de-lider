@@ -5,3 +5,4 @@ Caso você queira ver exemplos de como utilizar a API, clique no link abaixo, pa
 [Exemplos de Uso](./docs/usage_example.md)
 
 
+TESTE
