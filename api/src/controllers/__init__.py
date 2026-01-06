@@ -1,1 +1,1 @@
-from .github_manager import GithubManager
+from .github_controller import GithubController

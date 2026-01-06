@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 
-from github.PaginatedList import PaginatedList
 from github.Repository import Repository
-from github.ContentFile import ContentFile
 
 @dataclass(frozen=True)
 class RepositoryData:

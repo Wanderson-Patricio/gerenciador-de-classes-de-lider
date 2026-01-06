@@ -1,16 +1,7 @@
-## Exemplo de Uso
+# Exemplos de Uso
 
-```python
-import requests
-import os
+Caso você queira ver exemplos de como utilizar a API, clique no link abaixo, para ser redirecionado para a documentação.
 
-data = requests.get(
-    'http://localhost:3000/api/repositories/teste-de-repositorio',
-    headers={
-        'x-api-token': os.getenv('GITHUB_API_TOKEN')
-    }
-)
+[Exemplos de Uso](./docs/usage_example.md)
 
-print(data.status_code)
-print(data.json())
-```
+
