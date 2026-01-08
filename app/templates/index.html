@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block title %}
+<title>{{ page_info.title }}</title>
+{% endblock %} 
+
+{% block logo %}
+<span class="fs-4">{{ page_info.logo or page_info.title }}</span>
+{% endblock %} 
+
+{% block content %}
+<link rel="stylesheet" href="../static/style/index.css">
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <div class="card box-shadow w-50 text-center mx-auto">
+        <button class="btn">
+          <a href="{{ url_for('register_token') }}">Cadastrar Token</a>
+        </button>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <div class="card box-shadow w-50 text-center mx-auto">
+        <button class="btn">
+          <a href="/create-new-class">Cadastrar Nova Classe</a>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="script-div" data-token="{{ github_token }}"></main>
+
+<script>
+  const scriptDiv = document.getElementById("script-div");
+  const githubToken = scriptDiv.getAttribute("data-token");
+
+  if (githubToken && githubToken !== "None") {
+    if(localStorage.getItem("x-api-token")) {
+      console.info("Token já existe no LocalStorage. Nenhuma ação necessária.");
+    } else {
+      localStorage.setItem("x-api-token", githubToken);   
+    }
+    console.info(
+      "Token sincronizado da variável de ambiente para o LocalStorage."
+    );
+    scriptDiv.removeAttribute("data-token");
+  }
+</script>
+
+{% endblock %}

@@ -37,14 +37,14 @@ class NotFoundError(GithubError):
         message = f"{resource_type} '{resource_identifier}' not found."
         super().__init__(message, 404)
 
-class AlreadyExistsError(GithubError):
-    """Exception raised when a resource already exists."""
-
-    def __init__(self, resource_type: str = "Resource", resource_identifier: str = ""):
-        message = f"{resource_type} '{resource_identifier}' already exists."
-        super().__init__(message, 400)
-
 class BadRequestError(GithubError):
     """Exception raised when the request from the user does not follow the stablished rules"""
     def __init__(self, message: str):
         super().__init__(message, 400)
+
+class AlreadyExistsError(BadRequestError):
+    """Exception raised when a resource already exists."""
+
+    def __init__(self, resource_type: str = "Resource", resource_identifier: str = ""):
+        message = f"{resource_type} '{resource_identifier}' already exists."
+        super().__init__(message)

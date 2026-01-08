@@ -1,0 +1,49 @@
+{% extends "base.html" %} 
+
+{% block title %}
+<title>{{ page_info.title }}</title>
+{% endblock %} 
+
+{% block logo %}
+    <span class="fs-2">
+        <p class="fs-2">{{ page_info.logo }}</p>
+    </span>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="bi bi-upload"></i> Enviar Arquivo de Requisitos</h4>
+        </div>
+        <div class="card-body">
+          <form id="form" action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="fileInput" class="form-label"
+                >Selecione o arquivo (Arquivo JSON)</label
+              >
+              <input
+                class="form-control"
+                type="file"
+                id="fileInput"
+                name="file"
+                required
+              />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="bi bi-cloud-arrow-up"></i> Enviar para o Servidor
+            </button>
+          </form>
+          <div id="statusMessage" class="mt-3 d-none alert"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../static/script/create_new_class.js"></script>
+
+{% endblock %}

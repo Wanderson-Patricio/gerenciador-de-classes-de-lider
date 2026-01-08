@@ -1,39 +1,10 @@
-import base64
-from dotenv import load_dotenv
-import requests
-import os
+from app import app
+from api.src.routers.repository import repos_bp
+from docs.docs_bp import docs_bp
 
-load_dotenv()
+# Registrar os Blueprints
+app.register_blueprint(repos_bp, url_prefix="/api/repositories")
+app.register_blueprint(docs_bp, url_prefix="/docs")
 
-
-API_URL = "http://localhost:3000/api"
-HEADERS = {
-    'x-api-token': os.getenv("GITHUB_API_TOKEN", "")
-
-}
-
-params = {
-    "branch": "main"
-}
-
-filename = "README.md"
-path_in_repo = f"pasta/arquivos/{filename}"
-
-
-with open(filename, "rb") as f:
-    files = {
-        "file": (filename, f, "application/octet-stream")
-    }
-    data = {
-        "message": f"Updated {filename} via script"             # Opcional
-    }
-
-    api_url_post = f'{API_URL}/repositories/Classe-de-Lider-de-Aventureiros/files/{path_in_repo}'
-    res = requests.put(api_url_post, params=params, headers=HEADERS, files=files, data=data)
-
-
-print(res.status_code)
-try:
-    print(res.json())
-except Exception:
-    print(res.text)
+if __name__ == "__main__":
+    app.run(debug=True, port=3000)

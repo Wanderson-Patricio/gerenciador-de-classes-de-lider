@@ -1,0 +1,13 @@
+.card {
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+}
+
+.btn {
+  font-size: 2em;
+  font-weight: bold;
+  color: black;
+}
